@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">Viajes Destinos</string>
+
+    <!-- Autenticación -->
+    <string name="login_title">Iniciar Sesión</string>
+    <string name="login_subtitle">Portal de Agentes de Viajes</string>
+    <string name="register_title">Registro de Agente</string>
+    <string name="register_subtitle">Crea tu cuenta para gestionar el catálogo</string>
+    <string name="email_label">Correo Electrónico</string>
+    <string name="email_placeholder">agente@agenciadeviajes.com</string>
+    <string name="password_label">Contraseña</string>
+    <string name="password_placeholder">Mínimo 6 caracteres</string>
+    <string name="confirm_password_label">Confirmar Contraseña</string>
+    <string name="confirm_password_placeholder">Repite tu contraseña</string>
+    <string name="btn_login">Ingresar al Sistema</string>
+    <string name="btn_register">Registrar Agente</string>
+    <string name="btn_guest_demo">Entrar en Modo Rápido / Demo</string>
+    <string name="toggle_to_register">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="toggle_to_login">¿Ya tienes cuenta? Inicia sesión aquí</string>
+    <string name="agent_session_active">Agente Activo:</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="logout_confirm_title">¿Cerrar sesión?</string>
+    <string name="logout_confirm_message">¿Deseas salir del sistema de gestión de destinos?</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_confirm">Aceptar</string>
+
+    <!-- Catálogo de Destinos (Read) -->
+    <string name="catalog_title">Catálogo Turístico</string>
+    <string name="catalog_subtitle">Gestión de paquetes y destinos de viaje</string>
+    <string name="search_placeholder">Buscar por destino o país...</string>
+    <string name="filter_all">Todos los Países</string>
+    <string name="no_destinations_found">No se encontraron destinos</string>
+    <string name="no_destinations_cta">Toca el botón + para registrar un nuevo paquete turístico</string>
+    <string name="btn_add_destination">Nuevo Destino</string>
+    <string name="destination_country_label">País:</string>
+    <string name="destination_price_label">Precio por persona:</string>
+    <string name="destination_description_label">Descripción:</string>
+    <string name="btn_edit">Editar</string>
+    <string name="btn_delete">Eliminar</string>
+    <string name="badge_package">Paquete Turístico</string>
+    <string name="total_destinations_count">%1$d destinos disponibles</string>
+
+    <!-- Formulario Crear / Editar (Create & Update) -->
+    <string name="create_destination_title">Registrar Destino</string>
+    <string name="edit_destination_title">Editar Destino</string>
+    <string name="destination_name_label">Nombre del Destino</string>
+    <string name="destination_name_placeholder">Ej. Cancún Paradise Resort</string>
+    <string name="country_label">País de Destino</string>
+    <string name="country_select_hint">Seleccione un país (Spinner)</string>
+    <string name="price_label">Precio del Paquete (USD)</string>
+    <string name="price_placeholder">Ej. 499.00</string>
+    <string name="description_label">Descripción del Viaje</string>
+    <string name="description_placeholder">Detalla el paquete turístico, actividades, alojamiento y transporte (mínimo 20 caracteres)...</string>
+    <string name="description_char_counter">%1$d / 20 caracteres mínimos</string>
+    <string name="image_section_title">Fotografía del Destino</string>
+    <string name="btn_select_image">Elegir Foto de la Galería</string>
+    <string name="btn_change_image">Cambiar Foto de la Galería</string>
+    <string name="or_choose_sample">O selecciona una fotografía sugerida:</string>
+    <string name="btn_save_destination">Guardar en Catálogo</string>
+    <string name="btn_update_destination">Actualizar Paquete</string>
+    <string name="saving_progress">Guardando destino turístico...</string>
+
+    <!-- Validaciones Obligatorias -->
+    <string name="error_empty_name">El nombre del destino no puede estar vacío.</string>
+    <string name="error_empty_country">Debe seleccionar un país de la lista.</string>
+    <string name="error_empty_price">El precio no puede estar vacío.</string>
+    <string name="error_invalid_price">El precio debe ser un número mayor a 0.</string>
+    <string name="error_empty_description">La descripción no puede estar vacía.</string>
+    <string name="error_short_description">La descripción debe contener al menos 20 caracteres.</string>
+    <string name="error_empty_image">Cada destino debe tener una imagen asociada para ser guardado.</string>
+    <string name="error_empty_email">El correo electrónico no puede estar vacío.</string>
+    <string name="error_invalid_email">Formato de correo electrónico inválido.</string>
+    <string name="error_empty_password">La contraseña no puede estar vacía.</string>
+    <string name="error_short_password">La contraseña debe tener al menos 6 caracteres.</string>
+    <string name="error_passwords_dont_match">Las contraseñas no coinciden.</string>
+    <string name="error_general_validation">Por favor verifica los campos obligatorios.</string>
+
+    <!-- Eliminación (Delete) -->
+    <string name="delete_dialog_title">Confirmar Eliminación</string>
+    <string name="delete_dialog_message">¿Está seguro de eliminar el destino \"%1$s\"? Esta acción no se puede deshacer.</string>
+    <string name="btn_delete_confirm">Sí, Eliminar</string>
+    <string name="destination_deleted_success">Destino eliminado exitosamente.</string>
+    <string name="destination_saved_success">Destino registrado exitosamente.</string>
+    <string name="destination_updated_success">Destino actualizado exitosamente.</string>
+
+    <!-- Estado y Servicio -->
+    <string name="storage_local_active">Almacenamiento Multimedia Local / Cache</string>
+    <string name="service_firebase_active">Conexión a Firebase (Firestore &amp; Auth)</string>
+    <string name="service_offline_active">Modo Local Activo (Sin Conexión)</string>
+</resources>

@@ -1,0 +1,6 @@
+{
+  "name": "Viajes Destinos",
+  "description": "Aplicación para gestión de catálogo de destinos turísticos con autenticación Firebase, almacenamiento multimedia y CRUD completo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
