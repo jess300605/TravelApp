@@ -87,6 +87,11 @@ import com.example.ui.theme.BrandPrimary
 import com.example.ui.theme.BrandPrimaryText
 import com.example.ui.theme.BrandSecondaryText
 import kotlinx.coroutines.launch
+import android.view.LayoutInflater
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.ui.adapter.DestinationAdapter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +109,7 @@ fun CatalogScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedCountryFilter by remember { mutableStateOf<String?>(null) }
+    var useRecyclerViewXml by remember { mutableStateOf(true) }
 
     var destinationToDelete by remember { mutableStateOf<Destination?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -420,6 +426,56 @@ fun CatalogScreen(
                         )
                     }
                 }
+            } else if (useRecyclerViewXml) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.total_destinations_count, filteredDestinations.size),
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                color = BrandSecondaryText,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                        FilterChip(
+                            selected = useRecyclerViewXml,
+                            onClick = { useRecyclerViewXml = !useRecyclerViewXml },
+                            label = { Text(if (useRecyclerViewXml) "RecyclerView XML" else "Compose") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = BrandLightPrimary,
+                                selectedLabelColor = BrandDarkPrimary
+                            )
+                        )
+                    }
+
+                    AndroidView(
+                        factory = { ctx ->
+                            val rv = LayoutInflater.from(ctx).inflate(
+                                R.layout.layout_destinations_recycler,
+                                null,
+                                false
+                            ) as RecyclerView
+                            rv.layoutManager = LinearLayoutManager(ctx)
+                            rv.adapter = DestinationAdapter(
+                                items = filteredDestinations,
+                                onEditClick = { onEditClick(it.id) },
+                                onDeleteClick = { destinationToDelete = it }
+                            )
+                            rv
+                        },
+                        update = { rv ->
+                            (rv.adapter as? DestinationAdapter)?.updateData(filteredDestinations)
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("destinations_recycler_view")
+                    )
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier
@@ -429,14 +485,28 @@ fun CatalogScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        Text(
-                            text = stringResource(R.string.total_destinations_count, filteredDestinations.size),
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                color = BrandSecondaryText,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.total_destinations_count, filteredDestinations.size),
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    color = BrandSecondaryText,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                            FilterChip(
+                                selected = useRecyclerViewXml,
+                                onClick = { useRecyclerViewXml = !useRecyclerViewXml },
+                                label = { Text(if (useRecyclerViewXml) "RecyclerView XML" else "Compose") },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = BrandLightPrimary,
+                                    selectedLabelColor = BrandDarkPrimary
+                                )
+                            )
+                        }
                     }
 
                     items(

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,8 +13,7 @@ import kotlinx.coroutines.tasks.await
 data class AuthUser(
     val uid: String,
     val email: String,
-    val displayName: String = "",
-    val isDemo: Boolean = false
+    val displayName: String = ""
 )
 
 class AuthRepository(private val context: Context) {
@@ -43,7 +43,7 @@ class AuthRepository(private val context: Context) {
             firebaseAuth = null
         }
 
-        // If no Firebase user, check local saved session
+        // Check local saved session if no active Firebase user in memory
         if (_currentUser.value == null) {
             val savedUid = prefs.getString("saved_uid", null)
             val savedEmail = prefs.getString("saved_email", null)
@@ -51,8 +51,7 @@ class AuthRepository(private val context: Context) {
                 _currentUser.value = AuthUser(
                     uid = savedUid,
                     email = savedEmail,
-                    displayName = prefs.getString("saved_name", "Agente Turístico") ?: "Agente",
-                    isDemo = prefs.getBoolean("is_demo", false)
+                    displayName = prefs.getString("saved_name", "Agente Turístico") ?: "Agente"
                 )
             }
         }
@@ -80,16 +79,18 @@ class AuthRepository(private val context: Context) {
                 saveSession(loggedUser)
                 Result.success(loggedUser)
             } catch (e: Exception) {
-                // If Firebase fails due to network or missing config, check local credential or return failure
                 Result.failure(e)
             }
         } else {
-            // Local mode fallback
+            // Local fallback when firebase is not initialized
+            val storedPassword = prefs.getString("pass_$email", null)
+            if (storedPassword != null && storedPassword != pass) {
+                return Result.failure(Exception("Contraseña incorrecta para el usuario."))
+            }
             val user = AuthUser(
                 uid = "agent_" + email.hashCode().toString(),
                 email = email,
-                displayName = email.substringBefore("@").replaceFirstChar { it.uppercase() },
-                isDemo = false
+                displayName = email.substringBefore("@").replaceFirstChar { it.uppercase() }
             )
             saveSession(user)
             Result.success(user)
@@ -113,27 +114,48 @@ class AuthRepository(private val context: Context) {
                 Result.failure(e)
             }
         } else {
-            // Local mode register
+            // Local fallback register
+            prefs.edit().putString("pass_$email", pass).apply()
             val user = AuthUser(
                 uid = "agent_" + email.hashCode().toString(),
                 email = email,
-                displayName = "Agente " + email.substringBefore("@"),
-                isDemo = false
+                displayName = "Agente " + email.substringBefore("@")
             )
             saveSession(user)
             Result.success(user)
         }
     }
 
-    fun loginDemo(): AuthUser {
-        val demoUser = AuthUser(
-            uid = "demo_agent_01",
-            email = "agente.demo@viajes.com",
-            displayName = "Agente Principal",
-            isDemo = true
-        )
-        saveSession(demoUser)
-        return demoUser
+    suspend fun signInWithGoogleCredential(
+        idToken: String,
+        email: String? = null,
+        displayName: String? = null
+    ): Result<AuthUser> {
+        val auth = firebaseAuth
+        return if (auth != null) {
+            try {
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                val authResult = auth.signInWithCredential(credential).await()
+                val user = authResult.user
+                val loggedUser = AuthUser(
+                    uid = user?.uid ?: "google_user",
+                    email = user?.email ?: (email ?: "usuario.google@gmail.com"),
+                    displayName = user?.displayName ?: (displayName ?: "Usuario Google")
+                )
+                saveSession(loggedUser)
+                Result.success(loggedUser)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        } else {
+            val user = AuthUser(
+                uid = "google_" + (email ?: "account").hashCode().toString(),
+                email = email ?: "usuario.google@gmail.com",
+                displayName = displayName ?: "Usuario Google"
+            )
+            saveSession(user)
+            Result.success(user)
+        }
     }
 
     private fun saveSession(user: AuthUser) {
@@ -142,7 +164,6 @@ class AuthRepository(private val context: Context) {
             .putString("saved_uid", user.uid)
             .putString("saved_email", user.email)
             .putString("saved_name", user.displayName)
-            .putBoolean("is_demo", user.isDemo)
             .apply()
     }
 
@@ -150,7 +171,11 @@ class AuthRepository(private val context: Context) {
         try {
             firebaseAuth?.signOut()
         } catch (_: Exception) {}
-        prefs.edit().clear().apply()
+        prefs.edit()
+            .remove("saved_uid")
+            .remove("saved_email")
+            .remove("saved_name")
+            .apply()
         _currentUser.value = null
     }
 }

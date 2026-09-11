@@ -43,5 +43,25 @@ class ExampleRobolectricTest {
     assertEquals(destination.price, restored.price, 0.001)
     assertTrue(restored.description.length >= 20)
   }
+
+  @Test
+  fun `destination adapter item count and binding`() {
+    val sampleList = listOf(
+      Destination(
+        id = "dest_1",
+        name = "Cartagena Histórica",
+        country = "Colombia",
+        price = 350.0,
+        description = "Ciudad amurallada caribeña con arquitectura colonial.",
+        imageUri = ""
+      )
+    )
+    val adapter = com.example.ui.adapter.DestinationAdapter(
+      items = sampleList,
+      onEditClick = {},
+      onDeleteClick = {}
+    )
+    assertEquals(1, adapter.itemCount)
+  }
 }
 

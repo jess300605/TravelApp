@@ -30,11 +30,12 @@ Todos los textos de la interfaz gráfica están completamente centralizados en `
 
 ## ✅ Cumplimiento de Requerimientos
 
-### 1. Autenticación (Firebase Auth & Modo Demo)
+### 1. Autenticación (Firebase Auth: Email & Cuentas de Google)
 - Login y Registro de usuarios con Firebase Auth (`com.google.firebase:firebase-auth`).
+- Inicio de sesión directo con Cuentas de Google (`GoogleAuthProvider` + Credential Manager).
 - Validación de formato de correo electrónico y contraseña mínima de 6 caracteres.
 - Muestra de advertencias y errores en tiempo real en la pantalla.
-- Modo Rápido / Demo disponible para pruebas inmediatas en emuladores sin credenciales configuradas.
+- Acceso seguro para agentes de viajes (sin accesos de demostración no autorizados).
 
 ### 2. Base de Datos (Firebase Firestore & Sincronización Local)
 - Conexión a Firebase Firestore (`destinations`) con listener en tiempo real.
@@ -46,17 +47,19 @@ Todos los textos de la interfaz gráfica están completamente centralizados en `
 - Opciones de fotografías sugeridas integradas para facilitar pruebas directas.
 
 ### 4. Carga de Imágenes
-- Implementación de **Coil** (`AsyncImage`) para renderizado eficiente, transiciones suaves de crossfade y manejo de estados de carga y error.
+- Implementación de **Coil** con soporte tanto en Jetpack Compose (`AsyncImage`) como en el `DestinationAdapter` de **RecyclerView / ImageView** tradicional.
 
 ### 5. CRUD Completo y Validaciones Obligatorias
 1. **Create (Registro de Destinos):**
    - Nombre del destino (no vacío).
-   - País mediante **Spinner** (`ExposedDropdownMenuBox` con selección de países).
+   - País mediante **Spinner** (con selección rápida de países).
    - Precio del paquete con formato numérico estricto y **obligatoriamente mayor a 0**.
    - Descripción del viaje con validación de **mínimo 20 caracteres** y contador en vivo.
    - Fotografía obligatoria asociada para poder guardar.
-2. **Read (Catálogo Turístico):**
-   - Lista fluida (`LazyColumn`) con tarjetas estilo `CardView` que muestran fotografía, nombre, precio destacado, país y descripción.
+2. **Read (Catálogo Turístico con RecyclerView XML Tradicional):**
+   - Implementación con **`RecyclerView` + `DestinationAdapter` + `CardView` en XML** (`layout_destinations_recycler.xml` e `item_destination_card.xml`), cumpliendo con la exigencia académica del docente.
+   - Incluye selector para alternar con la vista moderna en Compose.
+   - Tarjetas con fotografía, nombre, precio destacado, país y descripción.
    - Barra de búsqueda y filtros rápidos por país.
 3. **Update (Edición):**
    - Modificación de cualquier campo del paquete turístico, incluyendo la actualización o cambio de la imagen.

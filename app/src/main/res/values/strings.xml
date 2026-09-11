@@ -14,7 +14,9 @@
     <string name="confirm_password_placeholder">Repite tu contraseña</string>
     <string name="btn_login">Ingresar al Sistema</string>
     <string name="btn_register">Registrar Agente</string>
-    <string name="btn_guest_demo">Entrar en Modo Rápido / Demo</string>
+    <string name="btn_login_google">Continuar con Google</string>
+    <string name="error_google_sign_in">No se pudo iniciar sesión con Google. Verifica tu conexión o cuenta.</string>
+    <string name="view_mode_recyclerview">RecyclerView XML</string>
     <string name="toggle_to_register">¿No tienes cuenta? Regístrate aquí</string>
     <string name="toggle_to_login">¿Ya tienes cuenta? Inicia sesión aquí</string>
     <string name="agent_session_active">Agente Activo:</string>

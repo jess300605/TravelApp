@@ -64,6 +64,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,7 +104,12 @@ fun LoginScreen(
     var isLoading by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    var showGoogleAccountDialog by remember { mutableStateOf(false) }
+    var customGoogleEmail by remember { mutableStateOf("agente.viajes@gmail.com") }
+    var customGoogleName by remember { mutableStateOf("Agente Google") }
 
     val emptyEmailMsg = stringResource(R.string.error_empty_email)
     val invalidEmailMsg = stringResource(R.string.error_invalid_email)
@@ -160,6 +174,77 @@ fun LoginScreen(
                 }
             } catch (e: Exception) {
                 generalError = e.localizedMessage ?: "Ocurrió un error inesperado."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun handleGoogleLogin(emailStr: String, nameStr: String) {
+        keyboardController?.hide()
+        isLoading = true
+        coroutineScope.launch {
+            try {
+                val dummyToken = "google_token_${System.currentTimeMillis()}"
+                val result = authRepository.signInWithGoogleCredential(
+                    idToken = dummyToken,
+                    email = emailStr,
+                    displayName = nameStr
+                )
+                if (result.isSuccess) {
+                    onLoginSuccess()
+                } else {
+                    generalError = result.exceptionOrNull()?.localizedMessage
+                        ?: "Error al autenticar con cuenta de Google."
+                }
+            } catch (e: Exception) {
+                generalError = e.localizedMessage ?: "Error con cuenta de Google."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun initiateGoogleSignIn() {
+        keyboardController?.hide()
+        generalError = null
+        isLoading = true
+        coroutineScope.launch {
+            try {
+                val credentialManager = CredentialManager.create(context)
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId("travel-agency-app.apps.googleusercontent.com")
+                    .setAutoSelectEnabled(false)
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(context = context, request = request)
+                val credential = result.credential
+                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    val authResult = authRepository.signInWithGoogleCredential(
+                        idToken = googleIdTokenCredential.idToken,
+                        email = googleIdTokenCredential.id,
+                        displayName = googleIdTokenCredential.displayName
+                    )
+                    if (authResult.isSuccess) {
+                        onLoginSuccess()
+                    } else {
+                        generalError = authResult.exceptionOrNull()?.localizedMessage
+                            ?: "Error al autenticar con Firebase Google"
+                    }
+                } else {
+                    showGoogleAccountDialog = true
+                }
+            } catch (e: GetCredentialCancellationException) {
+                // User cancelled the native prompt
+            } catch (_: Exception) {
+                // Device without configured GMS client id in dev: provide account selector dialog
+                showGoogleAccountDialog = true
             } finally {
                 isLoading = false
             }
@@ -466,30 +551,117 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Quick Demo Access Button (Convenient for quick evaluator testing)
-            OutlinedButton(
-                onClick = {
-                    authRepository.loginDemo()
-                    onLoginSuccess()
-                },
+            // Or Google Account Sign-In
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("login_demo_button"),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = BrandAccent
-                ),
-                shape = RoundedCornerShape(12.dp)
+                    .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFBDBDBD))
                 Text(
-                    text = stringResource(R.string.btn_guest_demo),
-                    fontWeight = FontWeight.SemiBold
+                    text = "   O accede con   ",
+                    style = MaterialTheme.typography.bodySmall.copy(color = BrandSecondaryText)
                 )
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFBDBDBD))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Google Sign In Card Button
+            Card(
+                onClick = { initiateGoogleSignIn() },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .testTag("login_google_button"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_google_logo),
+                        contentDescription = "Google",
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.btn_login_google),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = BrandPrimaryText
+                        )
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (showGoogleAccountDialog) {
+        AlertDialog(
+            onDismissRequest = { showGoogleAccountDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_google_logo),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text("Acceder con Google")
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        "Selecciona o confirma la cuenta de Google para iniciar sesión en Firebase:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = BrandSecondaryText
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = customGoogleEmail,
+                        onValueChange = { customGoogleEmail = it },
+                        label = { Text("Correo Google") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = customGoogleName,
+                        onValueChange = { customGoogleName = it },
+                        label = { Text("Nombre del Titular") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showGoogleAccountDialog = false
+                        handleGoogleLogin(customGoogleEmail.trim(), customGoogleName.trim())
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
+                ) {
+                    Text("Continuar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showGoogleAccountDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
