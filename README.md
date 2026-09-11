@@ -6,9 +6,8 @@ Aplicación móvil desarrollada en **Android Studio** con **Kotlin** y **Jetpack
 
 ## 📋 Datos de la Entrega
 
-- **Nombre del Alumno:** [Colocar aquí tu Nombre y Apellido]
-- **Enlace del Video de Defensa:** [https://youtu.be/TU_VIDEO_AQUI](https://youtu.be/TU_VIDEO_AQUI) *(Colocar la URL pública o no listada de YouTube / Google Drive)*
-- **Repositorio de GitHub:** [https://github.com/TU_USUARIO/TU_REPOSITORIO](https://github.com/TU_USUARIO/TU_REPOSITORIO)
+- **Nombre del Alumno:** Jesus Ernesto Sanabria Sibrian
+- **Enlace del Video de Defensa:** Google Drive)*
 - **APK Funcional:** Generada en `app/build/outputs/apk/debug/app-debug.apk` (o mediante el menú de exportación de AI Studio).
 
 ---
@@ -89,7 +88,7 @@ Para cumplir con el requerimiento de mínimo 10 commits con verbos válidos (en 
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+   git clone https://github.com/jess300605/TravelApp)
    ```
 2. Abrir el proyecto en **Android Studio**.
 3. (Opcional para Firebase): Descargar `google-services.json` desde Firebase Console y colocarlo en el directorio `/app`. Si no se incluye, la aplicación funciona de forma automática en modo local garantizando que no se interrumpa la evaluación.
